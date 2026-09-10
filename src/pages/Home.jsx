@@ -94,7 +94,6 @@ export default function Home() {
       }
 
       await submitted();
-      await editCourse(id, courseData);
       setToggledId(id);
     } catch (error) {
       console.error("Error toggling alert:", error);
