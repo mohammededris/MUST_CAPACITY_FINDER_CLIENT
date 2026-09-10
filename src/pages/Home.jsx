@@ -407,6 +407,18 @@ export default function Home() {
               </span>
             </div>
 
+            <div className="alert-limit-notice">
+              <p>Want to increase your alert limit? Contact us on WhatsApp.</p>
+              <a
+                className="whatsapp-button"
+                href="https://wa.me/?text=Hi%2C%20I%20would%20like%20to%20increase%20my%20alert%20limit."
+                target="_blank"
+                rel="noreferrer"
+              >
+                Chat on WhatsApp
+              </a>
+            </div>
+
             {courseData?.notifications?.length ? (
               <div className="course-list">
                 {courseData.notifications.map((notification, index) => (
