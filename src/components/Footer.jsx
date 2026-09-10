@@ -18,6 +18,10 @@ export function Footer() {
           </Link>
         </div>
 
+        <div>
+          <p>Made with ❤️ by Mohammed Nasser</p>
+        </div>
+
         <div className="footer-copyright">
           <p>© 2026 MUST Capacity Alerter. All rights reserved.</p>
         </div>
