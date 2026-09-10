@@ -113,6 +113,7 @@
   color: var(--ink);
   font: inherit;
   transition: border-color 160ms ease;
+  text-transform: uppercase;
 }
 
 .form-field input:focus {
@@ -236,6 +237,7 @@
   cursor: pointer;
   font: inherit;
   font-weight: 700;
+  margin-left: 8px;
   transition:
     background 160ms ease,
     transform 160ms ease;

@@ -200,7 +200,7 @@ export default function Home() {
 
     return () => clearTimeout(timer);
   }, [toggledId]);
-  
+
   useEffect(() => {
     if (!courseData || !shouldScrollToActivity.current) return;
 
