@@ -19,7 +19,7 @@ export function Footer() {
         </div>
 
         <div>
-          <p>Made with ❤️ by Mohammed Nasser</p>
+          <p>developed by Mohammed Nasser</p>
         </div>
 
         <div className="footer-copyright">
