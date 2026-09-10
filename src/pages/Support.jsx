@@ -19,8 +19,8 @@ export default function Support() {
 
   const handleShare = async () => {
     const shareData = {
-      title: "MUST Capacity Finder",
-      text: "Use MUST Capacity Finder to track course capacity requests.",
+      title: "MUST Capacity Alerter",
+      text: "Use MUST Capacity Alerter to track course capacity requests.",
       url: window.location.origin,
     };
 

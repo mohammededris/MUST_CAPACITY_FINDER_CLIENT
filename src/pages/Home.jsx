@@ -225,8 +225,8 @@ export default function Home() {
 
   const handleShare = async () => {
     const shareData = {
-      title: "MUST Capacity Finder",
-      text: "Use MUST Capacity Finder to track course capacity requests.",
+      title: "MUST Capacity Alerter",
+      text: "Use MUST Capacity Alerter to track course capacity requests.",
       url: window.location.origin,
     };
 
@@ -411,7 +411,7 @@ export default function Home() {
               <p>Want to increase your alert limit? Contact us on WhatsApp.</p>
               <a
                 className="whatsapp-button"
-                href="https://wa.me/201021099813?text=Hi%2C%20I%20would%20like%20to%20increase%20my%20alert%20limit."
+                href="https://wa.me/201145889968?text=Hi%2C%20I%20would%20like%20to%20increase%20my%20alert%20limit."
                 target="_blank"
                 rel="noreferrer"
               >
@@ -555,7 +555,7 @@ export default function Home() {
                           <h2>Help us spread the word</h2>
                           <p>
                             Your course request was submitted successfully.
-                            Share MUST Capacity Finder with a friend and help
+                            Share MUST Capacity Alerter with a friend and help
                             support the project.
                           </p>
 
