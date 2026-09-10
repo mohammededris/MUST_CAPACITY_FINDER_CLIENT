@@ -43,8 +43,8 @@ export default function Landing() {
       <Show when="signed-out">
         <div className="cta-section">
           <h2>Ready to get started?</h2>
-          <SignInButton />
-          <SignUpButton />
+          <SignInButton forceRedirectUrl="/home" />
+          <SignUpButton forceRedirectUrl="/home" />
         </div>
       </Show>
       <Show when="signed-in">
