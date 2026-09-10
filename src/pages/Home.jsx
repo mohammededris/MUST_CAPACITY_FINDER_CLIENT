@@ -2,6 +2,7 @@ import { Navbar } from "../components/Navbar";
 import { useUser } from "@clerk/react";
 import { useState, useEffect, useRef } from "react";
 import "./Home.css";
+import { Footer } from "../components/Footer";
 
 export default function Home() {
   const { user } = useUser();
@@ -458,6 +459,7 @@ export default function Home() {
           </section>
         </div>
       </div>
+      <Footer />
     </main>
   );
 }
