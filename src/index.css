@@ -1,6 +1,33 @@
-*{
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
+body {
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+::selection {
+  background-color: #ff0099; /* The highlight background color */
+  color: #ffffff; /* The text color when highlighted */
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #dbb7b7;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #fbb0b0;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

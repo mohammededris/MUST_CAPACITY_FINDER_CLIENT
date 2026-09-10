@@ -7,6 +7,7 @@ nav {
   border-bottom: 1px solid var(--line);
   background: var(--page);
   color: var(--ink);
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
 }
 
 .nav-logo {
