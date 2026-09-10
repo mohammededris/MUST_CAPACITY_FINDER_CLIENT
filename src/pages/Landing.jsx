@@ -2,6 +2,7 @@ import "./Landing.css";
 import { SignInButton, SignUpButton, Show } from "@clerk/react";
 import { Navbar } from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
+import { Footer } from "../components/Footer";
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -58,6 +59,7 @@ export default function Landing() {
           </button>
         </div>
       </Show>
+      <Footer />
     </>
   );
 }

@@ -1,11 +1,12 @@
 import { Navbar } from "../components/Navbar";
-import { useUser } from "@clerk/react";
+import { useUser, useAuth } from "@clerk/react";
 import { useState, useEffect, useRef } from "react";
 import "./Home.css";
 import { Footer } from "../components/Footer";
 
 export default function Home() {
   const { user } = useUser();
+  const { getToken } = useAuth();
 
   const activityRef = useRef(null);
   const shouldScrollToActivity = useRef(false);
@@ -15,6 +16,7 @@ export default function Home() {
   const [submitError, setSubmitError] = useState(null);
   const [courseData, setCourseData] = useState(null);
   const [toggledId, setToggledId] = useState(null);
+  const [showSharePopup, setShowSharePopup] = useState(false);
 
   const [formData, setFormData] = useState({
     subject: "",
@@ -38,6 +40,40 @@ export default function Home() {
 
   console.log("Course Data:", courseData);
   console.log("Course IDs:", id);
+
+  const alertLimit = courseData?.alertLimit ?? 1;
+  const alertCount =
+    courseData?.alertCount ?? courseData?.notifications?.length ?? 0;
+  const limitReached = alertCount >= alertLimit;
+
+  const ensureUserMetadata = async () => {
+    const alreadyChecked = sessionStorage.getItem("metadataChecked");
+    if (alreadyChecked) return;
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/v1/users`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${await Clerk.session.getToken()}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to initialize user metadata: ${response.status}`,
+        );
+      }
+
+      sessionStorage.setItem("metadataChecked", "true");
+    } catch (err) {
+      console.error("Error ensuring user metadata:", err);
+      // not fatal — don't block the rest of the page
+    }
+  };
 
   const toggleAlert = async (id, isCurrentlyStopped) => {
     try {
@@ -74,7 +110,11 @@ export default function Home() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${await Clerk.session.getToken()}`,
           },
-          body: JSON.stringify(updatedData),
+          body: JSON.stringify({
+            ...updatedData,
+            subject: updatedData.subject.trim().toUpperCase(),
+            courseCode: updatedData.courseCode.trim().toUpperCase(),
+          }),
         },
       );
       if (!response.ok) {
@@ -102,7 +142,11 @@ export default function Home() {
     setSubmitError(null);
 
     try {
-      const payload = { ...formData };
+      const payload = {
+        ...formData,
+        subject: formData.subject.trim().toUpperCase(),
+        courseCode: formData.courseCode.trim().toUpperCase(),
+      };
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/api/v1/courses`,
         {
@@ -123,6 +167,7 @@ export default function Home() {
       await response.json();
       shouldScrollToActivity.current = true;
       setShowSuccess(true);
+      setShowSharePopup(true);
     } catch (err) {
       setSubmitError(err.message);
       console.error("Error submitting registration:", err);
@@ -178,6 +223,21 @@ export default function Home() {
     setEditingId(null);
   };
 
+  const handleShare = async () => {
+    const shareData = {
+      title: "MUST Capacity Finder",
+      text: "Use MUST Capacity Finder to track course capacity requests.",
+      url: window.location.origin,
+    };
+
+    if (navigator.share) {
+      await navigator.share(shareData);
+    } else {
+      await navigator.clipboard.writeText(window.location.origin);
+      alert("Website link copied.");
+    }
+  };
+
   useEffect(() => {
     if (!showSuccess) return;
 
@@ -214,6 +274,12 @@ export default function Home() {
 
     shouldScrollToActivity.current = false;
   }, [courseData]);
+
+  useEffect(() => {
+    if (user) {
+      ensureUserMetadata();
+    }
+  }, [user]);
 
   return (
     <main className="home-page">
@@ -300,17 +366,26 @@ export default function Home() {
               <button
                 className="submit-button"
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || limitReached}
               >
                 {isSubmitting ? (
                   <span className="button-loading">
                     <span className="spinner" />
                     Submitting...
                   </span>
+                ) : limitReached ? (
+                  "Limit reached"
                 ) : (
                   "Submit request"
                 )}
               </button>
+              {limitReached && (
+                <p className="form-error">
+                  You've reached your limit of {alertLimit} alert
+                  {alertLimit === 1 ? "" : "s"}. Stop or delete an existing one
+                  to add another.
+                </p>
+              )}
 
               {showSuccess && (
                 <p className="success-message">
@@ -447,6 +522,49 @@ export default function Home() {
                           ? "Alert stopped."
                           : "Alert started."}
                       </p>
+                    )}
+                    {showSharePopup && (
+                      <div
+                        className="share-overlay"
+                        role="dialog"
+                        aria-modal="true"
+                      >
+                        <div className="share-popup">
+                          <button
+                            className="share-close"
+                            type="button"
+                            onClick={() => setShowSharePopup(false)}
+                            aria-label="Close popup"
+                          >
+                            ×
+                          </button>
+
+                          <p className="panel-kicker">Thank you</p>
+                          <h2>Help us spread the word</h2>
+                          <p>
+                            Your course request was submitted successfully.
+                            Share MUST Capacity Finder with a friend and help
+                            support the project.
+                          </p>
+
+                          <div className="share-actions">
+                            <button
+                              className="share-button"
+                              type="button"
+                              onClick={handleShare}
+                            >
+                              Share website
+                            </button>
+                            <button
+                              className="share-later-button"
+                              type="button"
+                              onClick={() => setShowSharePopup(false)}
+                            >
+                              Maybe later
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     )}
                   </article>
                 ))}
