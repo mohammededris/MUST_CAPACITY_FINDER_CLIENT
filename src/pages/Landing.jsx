@@ -39,8 +39,8 @@ export default function Landing() {
 
       <div className="cta-section">
         <h2>Ready to get started?</h2>
-        <SignInButton forceRedirectUrl="/home" />
-        <SignUpButton forceRedirectUrl="/home" />
+        <SignInButton />
+        <SignUpButton />
       </div>
     </>
   );
