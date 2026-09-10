@@ -351,7 +351,7 @@ export default function Home() {
                 <label htmlFor="whatsAppNumber">WhatsApp number</label>
                 <input
                   type="tel"
-                  placeholder="201145889968"
+                  placeholder="201021099813"
                   id="whatsAppNumber"
                   name="whatsAppNumber"
                   value={formData.whatsAppNumber}
@@ -411,7 +411,7 @@ export default function Home() {
               <p>Want to increase your alert limit? Contact us on WhatsApp.</p>
               <a
                 className="whatsapp-button"
-                href="https://wa.me/?text=Hi%2C%20I%20would%20like%20to%20increase%20my%20alert%20limit."
+                href="https://wa.me/201021099813?text=Hi%2C%20I%20would%20like%20to%20increase%20my%20alert%20limit."
                 target="_blank"
                 rel="noreferrer"
               >

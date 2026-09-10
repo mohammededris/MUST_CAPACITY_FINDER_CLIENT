@@ -1,0 +1,103 @@
+.support-page {
+  min-height: 100vh;
+  background: var(--page);
+  color: var(--ink);
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+.support-content {
+  width: min(620px, calc(100% - 40px));
+  min-height: 58vh;
+  margin: 0 auto;
+  padding: 112px 0 88px;
+}
+
+.support-content h1 {
+  margin: 0;
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.support-description {
+  max-width: 500px;
+  margin: 24px 0 40px;
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.donation-links {
+  display: grid;
+  gap: 12px;
+}
+
+.donation-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 58px;
+  padding: 0 20px;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.donation-link:hover,
+.donation-link:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent-dark);
+  outline: none;
+  transform: translateX(4px);
+}
+
+.donation-link span {
+  color: var(--accent);
+  font-size: 1.2rem;
+}
+
+.support-note {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.support-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.share-support-button {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--white);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.share-support-button:hover {
+  background: var(--accent-dark);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 600px) {
+  .support-content {
+    width: min(100% - 32px, 560px);
+    padding: 80px 0 64px;
+  }
+}
