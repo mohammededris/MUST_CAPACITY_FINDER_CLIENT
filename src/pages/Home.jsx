@@ -1,11 +1,13 @@
 import { Navbar } from "../components/Navbar";
 import { useUser } from "@clerk/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./Home.css";
 
 export default function Home() {
   const { user } = useUser();
-  console.log(user.fullName);
+
+  const activityRef = useRef(null);
+  const shouldScrollToActivity = useRef(false);
 
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -118,6 +120,7 @@ export default function Home() {
       }
 
       await response.json();
+      shouldScrollToActivity.current = true;
       setShowSuccess(true);
     } catch (err) {
       setSubmitError(err.message);
@@ -197,6 +200,19 @@ export default function Home() {
 
     return () => clearTimeout(timer);
   }, [toggledId]);
+  
+  useEffect(() => {
+    if (!courseData || !shouldScrollToActivity.current) return;
+
+    if (window.matchMedia("(max-width: 700px)").matches) {
+      activityRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+
+    shouldScrollToActivity.current = false;
+  }, [courseData]);
 
   return (
     <main className="home-page">
@@ -303,7 +319,7 @@ export default function Home() {
             </form>
           </section>
 
-          <section className="home-panel course-panel">
+          <section ref={activityRef} className="home-panel course-panel">
             <div className="course-panel-header">
               <div>
                 <p className="panel-kicker">Your activity</p>

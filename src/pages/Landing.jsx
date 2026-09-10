@@ -1,8 +1,10 @@
 import "./Landing.css";
-import { SignInButton, SignUpButton } from "@clerk/react";
+import { SignInButton, SignUpButton, Show } from "@clerk/react";
 import { Navbar } from "../components/Navbar";
+import { useNavigate } from "react-router-dom";
 
 export default function Landing() {
+  const navigate = useNavigate();
   return (
     <>
       <Navbar />
@@ -37,11 +39,25 @@ export default function Landing() {
         </div>
       </div>
 
-      <div className="cta-section">
-        <h2>Ready to get started?</h2>
-        <SignInButton />
-        <SignUpButton />
-      </div>
+      <Show when="signed-out">
+        <div className="cta-section">
+          <h2>Ready to get started?</h2>
+          <SignInButton />
+          <SignUpButton />
+        </div>
+      </Show>
+      <Show when="signed-in">
+        <div className="cta-section">
+          <h2>What are you doing here?</h2>
+          <h2>Go to your alerts</h2>
+          <button
+            className="go-to-alerts-button"
+            onClick={() => navigate("/home")}
+          >
+            ALERTS
+          </button>
+        </div>
+      </Show>
     </>
   );
 }
