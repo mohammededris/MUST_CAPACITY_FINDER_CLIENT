@@ -1,0 +1,82 @@
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 72px;
+  padding: 0 max(24px, calc((100vw - 1080px) / 2));
+  border-bottom: 1px solid #e3e9e7;
+  background: rgba(248, 250, 249, 0.92);
+  color: #17212b;
+}
+
+.nav-logo {
+  color: #17212b;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.nav-links a {
+  position: relative;
+  color: #687780;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+
+.nav-links a::after {
+  position: absolute;
+  right: 0;
+  bottom: -8px;
+  left: 0;
+  height: 2px;
+  background: #d96838;
+  content: "";
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 160ms ease;
+}
+
+.nav-links a:hover {
+  color: #d96838;
+}
+
+.nav-links a:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Keeps the Clerk account control aligned with the navigation. */
+.nav-links .cl-userButtonBox {
+  width: 34px;
+  height: 34px;
+}
+
+.nav-links .cl-userButtonTrigger {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+}
+
+@media (max-width: 600px) {
+  nav {
+    min-height: 64px;
+    padding: 0 16px;
+  }
+
+  .nav-logo {
+    max-width: 170px;
+    font-size: 0.9rem;
+  }
+
+  .nav-links {
+    gap: 16px;
+  }
+}

@@ -1,0 +1,23 @@
+.footer-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  background-color: #f1f1f1;
+  flex-direction: column;
+}
+.footer-links a {
+  margin: 0 10px;
+  text-decoration: none;
+  color: #333;
+}
+
+.footer-social a {
+  margin: 0 10px;
+  text-decoration: none;
+  font-size: 20px;
+}
+.footer-copyright {
+  font-size: 14px;
+  color: #888;
+}
