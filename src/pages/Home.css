@@ -331,6 +331,56 @@
   font-weight: 700;
 }
 
+.edit-form {
+  display: grid;
+  gap: 18px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  background: var(--white);
+}
+
+.edit-form > label {
+  display: grid;
+  gap: 8px;
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.edit-form > label input:not(.search-select) {
+  width: 100%;
+  min-height: 43px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  outline: none;
+  background: var(--page);
+  color: var(--ink);
+  font: inherit;
+  transition: border-color 160ms ease;
+}
+
+.edit-form > label input:not(.search-select):focus {
+  border-color: var(--accent);
+}
+
+.edit-form .phone-input-row {
+  width: 100%;
+}
+
+.edit-form .edit-course-button,
+.edit-form .toggle-alert-button {
+  margin: 0;
+}
+
+.edit-form .toggle-alert-button {
+  background: var(--line);
+  color: var(--ink);
+}
+
+.edit-form .toggle-alert-button:hover:not(:disabled) {
+  background: #c6d0d4;
+}
+
 .empty-state {
   color: var(--muted);
   line-height: 1.6;

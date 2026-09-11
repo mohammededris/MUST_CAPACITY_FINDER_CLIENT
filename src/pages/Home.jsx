@@ -52,6 +52,7 @@ const normalizePhoneForApi = (value, country) => {
 
 function SearchableSelect({
   id,
+  name = id,
   value,
   options,
   placeholder,
@@ -66,7 +67,7 @@ function SearchableSelect({
         className="search-select"
         type="search"
         id={id}
-        name={id}
+        name={name}
         list={listId}
         value={value}
         onChange={onChange}
@@ -101,6 +102,8 @@ export default function Home() {
   const [subjects, setSubjects] = useState([]);
   const [courseNumbers, setCourseNumbers] = useState([]);
   const [crns, setCrns] = useState([]);
+  const [editCourseNumbers, setEditCourseNumbers] = useState([]);
+  const [editCrns, setEditCrns] = useState([]);
   const [isLoadingSearchOptions, setIsLoadingSearchOptions] = useState(false);
   const [searchOptionsError, setSearchOptionsError] = useState(null);
 
@@ -114,6 +117,7 @@ export default function Home() {
   });
 
   const [editingId, setEditingId] = useState(null);
+  const [editError, setEditError] = useState(null);
   const [editPhoneCountry, setEditPhoneCountry] = useState("EG");
   const [editForm, setEditForm] = useState({
     subject: "",
@@ -184,6 +188,18 @@ export default function Home() {
 
   const editCourse = async (id, updatedData) => {
     try {
+      if (!subjects.includes(updatedData.subject)) {
+        throw new Error("Please select a subject from the list.");
+      }
+
+      if (!editCourseNumbers.includes(updatedData.courseCode)) {
+        throw new Error("Please select a course code from the list.");
+      }
+
+      if (!editCrns.includes(updatedData.crn)) {
+        throw new Error("Please select a CRN from the list.");
+      }
+
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/api/v1/courses/${id}`,
         {
@@ -209,8 +225,11 @@ export default function Home() {
         );
       }
       await submitted();
+      return true;
     } catch (error) {
       console.error("Error editing course:", error);
+      setEditError(error.message);
+      return false;
     }
   };
 
@@ -242,6 +261,26 @@ export default function Home() {
     }));
     setCrns([]);
     setSearchOptionsError(null);
+  };
+
+  const handleEditSubjectChange = (event) => {
+    setEditForm((previousForm) => ({
+      ...previousForm,
+      subject: event.target.value,
+      courseCode: "",
+      crn: "",
+    }));
+    setEditCourseNumbers([]);
+    setEditCrns([]);
+  };
+
+  const handleEditCourseNumberChange = (event) => {
+    setEditForm((previousForm) => ({
+      ...previousForm,
+      courseCode: event.target.value,
+      crn: "",
+    }));
+    setEditCrns([]);
   };
 
   const handleSubmit = async (e) => {
@@ -328,7 +367,10 @@ export default function Home() {
     );
 
     setEditingId(notification._id);
+    setEditError(null);
     setEditPhoneCountry(phoneNumber?.country ?? "EG");
+    setEditCourseNumbers([]);
+    setEditCrns([]);
     setEditForm({
       subject: notification.subject ?? "",
       courseCode: notification.courseCode ?? "",
@@ -348,8 +390,9 @@ export default function Home() {
   };
 
   const saveEdit = async (id) => {
-    await editCourse(id, editForm);
-    setEditingId(null);
+    setEditError(null);
+    const wasSaved = await editCourse(id, editForm);
+    if (wasSaved) setEditingId(null);
   };
 
   const handleShare = async () => {
@@ -594,6 +637,124 @@ export default function Home() {
     courseNumbers,
   ]);
 
+  useEffect(() => {
+    if (!editingId || !subjects.includes(editForm.subject)) {
+      return undefined;
+    }
+
+    let isCancelled = false;
+    const controller = new AbortController();
+
+    const loadEditCourseNumbers = async () => {
+      const cacheKey = `${searchCachePrefix}:courses:${editForm.subject}`;
+      const cachedCourseNumbers = readSearchCache(cacheKey);
+
+      if (cachedCourseNumbers) {
+        setEditCourseNumbers(cachedCourseNumbers);
+        return;
+      }
+
+      try {
+        const params = new URLSearchParams({
+          searchSubject: editForm.subject,
+        });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/v1/search?${params}`,
+          {
+            signal: controller.signal,
+            headers: {
+              Authorization: `Bearer ${await getToken()}`,
+            },
+          },
+        );
+
+        if (!response.ok) throw new Error("Unable to load course numbers");
+
+        const data = await response.json();
+        if (!isCancelled) {
+          setEditCourseNumbers(data);
+          writeSearchCache(cacheKey, data);
+        }
+      } catch (error) {
+        if (!isCancelled && error.name !== "AbortError") {
+          setSearchOptionsError(error.message);
+        }
+      }
+    };
+
+    loadEditCourseNumbers();
+
+    return () => {
+      isCancelled = true;
+      controller.abort();
+    };
+  }, [editForm.subject, editingId, getToken, subjects]);
+
+  useEffect(() => {
+    if (
+      !editingId ||
+      !subjects.includes(editForm.subject) ||
+      !editCourseNumbers.includes(editForm.courseCode)
+    ) {
+      return undefined;
+    }
+
+    let isCancelled = false;
+    const controller = new AbortController();
+
+    const loadEditCrns = async () => {
+      const cacheKey = `${searchCachePrefix}:crns:${editForm.subject}:${editForm.courseCode}`;
+      const cachedCrns = readSearchCache(cacheKey);
+
+      if (cachedCrns) {
+        setEditCrns(cachedCrns);
+        return;
+      }
+
+      try {
+        const params = new URLSearchParams({
+          searchSubject: editForm.subject,
+          searchcourseNumber: editForm.courseCode,
+        });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/v1/search?${params}`,
+          {
+            signal: controller.signal,
+            headers: {
+              Authorization: `Bearer ${await getToken()}`,
+            },
+          },
+        );
+
+        if (!response.ok) throw new Error("Unable to load CRNs");
+
+        const data = await response.json();
+        if (!isCancelled) {
+          setEditCrns(data);
+          writeSearchCache(cacheKey, data);
+        }
+      } catch (error) {
+        if (!isCancelled && error.name !== "AbortError") {
+          setSearchOptionsError(error.message);
+        }
+      }
+    };
+
+    loadEditCrns();
+
+    return () => {
+      isCancelled = true;
+      controller.abort();
+    };
+  }, [
+    editForm.courseCode,
+    editForm.subject,
+    editingId,
+    getToken,
+    subjects,
+    editCourseNumbers,
+  ]);
+
   return (
     <main className="home-page">
       <Navbar />
@@ -779,34 +940,48 @@ export default function Home() {
                     key={notification._id ?? index}
                   >
                     {editingId === notification._id ? (
-                      <>
+                      <div className="edit-form">
                         <label>
                           Subject
-                          <input
-                            name="subject"
+                          <SearchableSelect
+                            id={`edit-subject-${notification._id}`}
                             value={editForm.subject}
-                            onChange={handleEditChange}
-                            required
+                            options={subjects}
+                            placeholder="Search subjects"
+                            onChange={handleEditSubjectChange}
                           />
                         </label>
 
                         <label>
                           Course code
-                          <input
-                            name="courseCode"
+                          <SearchableSelect
+                            id={`edit-courseCode-${notification._id}`}
                             value={editForm.courseCode}
-                            onChange={handleEditChange}
-                            required
+                            options={editCourseNumbers}
+                            placeholder={
+                              editForm.subject
+                                ? "Search course codes"
+                                : "Select a subject first"
+                            }
+                            onChange={handleEditCourseNumberChange}
+                            disabled={!editForm.subject}
                           />
                         </label>
 
                         <label>
                           CRN
-                          <input
+                          <SearchableSelect
+                            id={`edit-crn-${notification._id}`}
                             name="crn"
                             value={editForm.crn}
+                            options={editCrns}
+                            placeholder={
+                              editForm.courseCode
+                                ? "Search CRNs"
+                                : "Select a course first"
+                            }
                             onChange={handleEditChange}
-                            required
+                            disabled={!editForm.courseCode}
                           />
                         </label>
 
@@ -838,6 +1013,8 @@ export default function Home() {
                           </div>
                         </label>
 
+                        {editError && <p className="form-error">{editError}</p>}
+
                         <button
                           className="edit-course-button"
                           type="button"
@@ -853,7 +1030,7 @@ export default function Home() {
                         >
                           Cancel
                         </button>
-                      </>
+                      </div>
                     ) : (
                       <>
                         <p>
