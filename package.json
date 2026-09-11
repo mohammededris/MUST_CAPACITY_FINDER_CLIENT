@@ -13,6 +13,7 @@
     "@clerk/react": "^6.15.1",
     "@every-qrcode/react": "^0.1.2",
     "@vercel/analytics": "^2.0.1",
+    "libphonenumber-js": "^1.13.13",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-router-dom": "^7.18.1"

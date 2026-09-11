@@ -1,8 +1,35 @@
 import { Navbar } from "../components/Navbar";
 import { useUser, useAuth } from "@clerk/react";
 import { useState, useEffect, useRef } from "react";
+import {
+  getCountries,
+  getCountryCallingCode,
+  parsePhoneNumberFromString,
+} from "libphonenumber-js";
 import "./Home.css";
 import { Footer } from "../components/Footer";
+
+const countryDisplayNames = new Intl.DisplayNames(["en"], {
+  type: "region",
+});
+
+const countries = getCountries()
+  .map((country) => ({
+    code: country,
+    name: countryDisplayNames.of(country) ?? country,
+    callingCode: getCountryCallingCode(country),
+  }))
+  .sort((first, second) => first.name.localeCompare(second.name));
+
+const normalizePhoneForApi = (value, country) => {
+  const phoneNumber = parsePhoneNumberFromString(value, country);
+
+  if (!phoneNumber || !phoneNumber.isValid()) {
+    throw new Error("Please enter a valid phone number for the selected country.");
+  }
+
+  return phoneNumber.number.replace(/\D/g, "");
+};
 
 export default function Home() {
   const { user } = useUser();
@@ -17,6 +44,7 @@ export default function Home() {
   const [courseData, setCourseData] = useState(null);
   const [toggledId, setToggledId] = useState(null);
   const [showSharePopup, setShowSharePopup] = useState(false);
+  const [phoneCountry, setPhoneCountry] = useState("EG");
 
   const [formData, setFormData] = useState({
     subject: "",
@@ -28,6 +56,7 @@ export default function Home() {
   });
 
   const [editingId, setEditingId] = useState(null);
+  const [editPhoneCountry, setEditPhoneCountry] = useState("EG");
   const [editForm, setEditForm] = useState({
     subject: "",
     courseCode: "",
@@ -114,6 +143,10 @@ export default function Home() {
             ...updatedData,
             subject: updatedData.subject.trim().toUpperCase(),
             courseCode: updatedData.courseCode.trim().toUpperCase(),
+            whatsAppNumber: normalizePhoneForApi(
+              updatedData.whatsAppNumber,
+              editPhoneCountry,
+            ),
           }),
         },
       );
@@ -146,6 +179,10 @@ export default function Home() {
         ...formData,
         subject: formData.subject.trim().toUpperCase(),
         courseCode: formData.courseCode.trim().toUpperCase(),
+        whatsAppNumber: normalizePhoneForApi(
+          formData.whatsAppNumber,
+          phoneCountry,
+        ),
       };
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/api/v1/courses`,
@@ -199,12 +236,19 @@ export default function Home() {
   };
 
   const startEditing = (notification) => {
+    const savedPhone = notification.whatsAppNumber ?? "";
+    const phoneNumber = parsePhoneNumberFromString(
+      savedPhone.startsWith("+") ? savedPhone : `+${savedPhone}`,
+    );
+
     setEditingId(notification._id);
+    setEditPhoneCountry(phoneNumber?.country ?? "EG");
     setEditForm({
       subject: notification.subject ?? "",
       courseCode: notification.courseCode ?? "",
       crn: notification.crn ?? "",
-      whatsAppNumber: notification.whatsAppNumber ?? "",
+      whatsAppNumber:
+        phoneNumber?.nationalNumber ?? savedPhone,
       userName: notification.userName ?? user.fullName,
     });
   };
@@ -298,6 +342,16 @@ export default function Home() {
 
         <div className="home-layout">
           <section className="home-panel registration-panel">
+            <figure className="registration-guide">
+              <img
+                src="/guide.png"
+                alt="Example showing where to find the subject, course code, and CRN"
+              />
+              <figcaption>
+                Match these three values with your course listing before you
+                submit.
+              </figcaption>
+            </figure>
             <p className="panel-kicker">New request</p>
             <h2 className="panel-title">Register a course</h2>
             <p className="panel-description">
@@ -349,16 +403,36 @@ export default function Home() {
 
               <div className="form-field">
                 <label htmlFor="whatsAppNumber">WhatsApp number</label>
-                <input
-                  type="tel"
-                  placeholder="201021099813"
-                  id="whatsAppNumber"
-                  name="whatsAppNumber"
-                  value={formData.whatsAppNumber}
-                  onChange={handleChange}
-                  required
-                  disabled={isSubmitting}
-                />
+                <p className="field-hint">
+                  Select your country, then enter your number without the
+                  country code.
+                </p>
+                <div className="phone-input-row">
+                  <select
+                    className="country-select"
+                    aria-label="Phone country"
+                    value={phoneCountry}
+                    onChange={(event) => setPhoneCountry(event.target.value)}
+                    disabled={isSubmitting}
+                  >
+                    {countries.map((country) => (
+                      <option key={country.code} value={country.code}>
+                        {country.name} (+{country.callingCode})
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="tel"
+                    inputMode="tel"
+                    placeholder="01012345678"
+                    id="whatsAppNumber"
+                    name="whatsAppNumber"
+                    value={formData.whatsAppNumber}
+                    onChange={handleChange}
+                    required
+                    disabled={isSubmitting}
+                  />
+                </div>
               </div>
 
               {submitError && <p className="form-error">{submitError}</p>}
@@ -460,13 +534,30 @@ export default function Home() {
 
                         <label>
                           WhatsApp number
-                          <input
-                            type="tel"
-                            name="whatsAppNumber"
-                            value={editForm.whatsAppNumber}
-                            onChange={handleEditChange}
-                            required
-                          />
+                          <div className="phone-input-row">
+                            <select
+                              className="country-select"
+                              aria-label="Phone country"
+                              value={editPhoneCountry}
+                              onChange={(event) =>
+                                setEditPhoneCountry(event.target.value)
+                              }
+                            >
+                              {countries.map((country) => (
+                                <option key={country.code} value={country.code}>
+                                  {country.name} (+{country.callingCode})
+                                </option>
+                              ))}
+                            </select>
+                            <input
+                              type="tel"
+                              inputMode="tel"
+                              name="whatsAppNumber"
+                              value={editForm.whatsAppNumber}
+                              onChange={handleEditChange}
+                              required
+                            />
+                          </div>
                         </label>
 
                         <button

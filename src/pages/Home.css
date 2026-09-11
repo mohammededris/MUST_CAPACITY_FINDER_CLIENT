@@ -75,6 +75,26 @@
   max-width: 420px;
 }
 
+.registration-guide {
+  margin: 0 0 32px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  background: var(--white);
+}
+
+.registration-guide img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.registration-guide figcaption {
+  margin: 10px 2px 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
 .panel-title {
   margin: 0;
   font-size: 1.8rem;
@@ -101,6 +121,36 @@
   color: var(--ink);
   font-size: 0.85rem;
   font-weight: 700;
+}
+
+.field-hint {
+  margin: -2px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.phone-input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: end;
+}
+
+.country-select {
+  width: 100%;
+  min-width: 0;
+  padding: 12px 8px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+}
+
+.country-select:focus {
+  border-bottom-color: var(--accent);
 }
 
 .form-field input {
@@ -419,6 +469,55 @@
 }
 
 @media (max-width: 500px) {
+  .home-shell {
+    width: min(100% - 24px, 600px);
+    padding: 36px 0;
+  }
+
+  .home-hero {
+    margin-bottom: 40px;
+  }
+
+  .home-title {
+    font-size: clamp(2.35rem, 14vw, 3.5rem);
+  }
+
+  .home-subtitle {
+    font-size: 0.98rem;
+  }
+
+  .registration-guide {
+    margin-bottom: 28px;
+    padding: 7px;
+  }
+
+  .registration-guide figcaption {
+    font-size: 0.75rem;
+  }
+
+  .phone-input-row {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .country-select,
+  .form-field input {
+    font-size: 0.9rem;
+  }
+
+  .submit-button,
+  .toggle-alert-button,
+  .edit-course-button {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .course-card p {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+
   .share-popup {
     padding: 28px 22px;
   }
