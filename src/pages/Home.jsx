@@ -1,6 +1,6 @@
 import { Navbar } from "../components/Navbar";
 import { useUser, useAuth } from "@clerk/react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   getCountries,
   getCountryCallingCode,
@@ -21,6 +21,23 @@ const countries = getCountries()
   }))
   .sort((first, second) => first.name.localeCompare(second.name));
 
+const searchCachePrefix = "must-capacity-search";
+
+const readSearchCache = (key) => {
+  try {
+    const cachedValue = sessionStorage.getItem(key);
+    const parsedValue = cachedValue ? JSON.parse(cachedValue) : null;
+    return Array.isArray(parsedValue) ? parsedValue : null;
+  } catch {
+    sessionStorage.removeItem(key);
+    return null;
+  }
+};
+
+const writeSearchCache = (key, value) => {
+  sessionStorage.setItem(key, JSON.stringify(value));
+};
+
 const normalizePhoneForApi = (value, country) => {
   const phoneNumber = parsePhoneNumberFromString(value, country);
 
@@ -32,6 +49,40 @@ const normalizePhoneForApi = (value, country) => {
 
   return phoneNumber.number.replace(/\D/g, "");
 };
+
+function SearchableSelect({
+  id,
+  value,
+  options,
+  placeholder,
+  onChange,
+  disabled,
+}) {
+  const listId = `${id}-options`;
+
+  return (
+    <>
+      <input
+        className="search-select"
+        type="search"
+        id={id}
+        name={id}
+        list={listId}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        autoComplete="off"
+        required
+        disabled={disabled}
+      />
+      <datalist id={listId}>
+        {options.map((option) => (
+          <option key={option} value={option} />
+        ))}
+      </datalist>
+    </>
+  );
+}
 
 export default function Home() {
   const { user } = useUser();
@@ -47,6 +98,11 @@ export default function Home() {
   const [toggledId, setToggledId] = useState(null);
   const [showSharePopup, setShowSharePopup] = useState(false);
   const [phoneCountry, setPhoneCountry] = useState("EG");
+  const [subjects, setSubjects] = useState([]);
+  const [courseNumbers, setCourseNumbers] = useState([]);
+  const [crns, setCrns] = useState([]);
+  const [isLoadingSearchOptions, setIsLoadingSearchOptions] = useState(false);
+  const [searchOptionsError, setSearchOptionsError] = useState(null);
 
   const [formData, setFormData] = useState({
     subject: "",
@@ -67,17 +123,12 @@ export default function Home() {
     userName: "",
   });
 
-  const id = courseData?.notifications?.[0]?._id;
-
-  console.log("Course Data:", courseData);
-  console.log("Course IDs:", id);
-
   const alertLimit = courseData?.alertLimit ?? 1;
   const alertCount =
     courseData?.alertCount ?? courseData?.notifications?.length ?? 0;
   const limitReached = alertCount >= alertLimit;
 
-  const ensureUserMetadata = async () => {
+  const ensureUserMetadata = useCallback(async () => {
     const alreadyChecked = sessionStorage.getItem("metadataChecked");
     if (alreadyChecked) return;
 
@@ -88,7 +139,7 @@ export default function Home() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${await Clerk.session.getToken()}`,
+            Authorization: `Bearer ${await getToken()}`,
           },
         },
       );
@@ -104,7 +155,7 @@ export default function Home() {
       console.error("Error ensuring user metadata:", err);
       // not fatal — don't block the rest of the page
     }
-  };
+  }, [getToken]);
 
   const toggleAlert = async (id, isCurrentlyStopped) => {
     try {
@@ -114,7 +165,7 @@ export default function Home() {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${await Clerk.session.getToken()}`,
+            Authorization: `Bearer ${await getToken()}`,
           },
         },
       );
@@ -139,7 +190,7 @@ export default function Home() {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${await Clerk.session.getToken()}`,
+            Authorization: `Bearer ${await getToken()}`,
           },
           body: JSON.stringify({
             ...updatedData,
@@ -171,12 +222,46 @@ export default function Home() {
     }));
   };
 
+  const handleSubjectChange = (event) => {
+    setFormData((previousData) => ({
+      ...previousData,
+      subject: event.target.value,
+      courseCode: "",
+      crn: "",
+    }));
+    setCourseNumbers([]);
+    setCrns([]);
+    setSearchOptionsError(null);
+  };
+
+  const handleCourseNumberChange = (event) => {
+    setFormData((previousData) => ({
+      ...previousData,
+      courseCode: event.target.value,
+      crn: "",
+    }));
+    setCrns([]);
+    setSearchOptionsError(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitError(null);
 
     try {
+      if (!subjects.includes(formData.subject)) {
+        throw new Error("Please select a subject from the list.");
+      }
+
+      if (!courseNumbers.includes(formData.courseCode)) {
+        throw new Error("Please select a course code from the list.");
+      }
+
+      if (!crns.includes(formData.crn)) {
+        throw new Error("Please select a CRN from the list.");
+      }
+
       const payload = {
         ...formData,
         subject: formData.subject.trim().toUpperCase(),
@@ -192,7 +277,7 @@ export default function Home() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${await Clerk.session.getToken()}`,
+            Authorization: `Bearer ${await getToken()}`,
           },
           body: JSON.stringify(payload),
         },
@@ -204,6 +289,7 @@ export default function Home() {
       }
 
       await response.json();
+      await submitted();
       shouldScrollToActivity.current = true;
       setShowSuccess(true);
       setShowSharePopup(true);
@@ -214,16 +300,15 @@ export default function Home() {
       setIsSubmitting(false);
     }
 
-    console.log(formData);
   };
 
-  const submitted = async () => {
+  const submitted = useCallback(async () => {
     try {
       await fetch(`${import.meta.env.VITE_API_URL}/api/v1/courses`, {
         method: "get",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${await Clerk.session.getToken()}`,
+          Authorization: `Bearer ${await getToken()}`,
           userId: user.id,
         },
       }).then(async (response) => {
@@ -235,7 +320,7 @@ export default function Home() {
     } catch (err) {
       console.error("Cannot GET the course data:", err);
     }
-  };
+  }, [getToken, user.id]);
 
   const startEditing = (notification) => {
     const savedPhone = notification.whatsAppNumber ?? "";
@@ -295,7 +380,7 @@ export default function Home() {
 
   useEffect(() => {
     submitted();
-  }, [showSuccess]);
+  }, [submitted]);
 
   useEffect(() => {
     if (!toggledId) return;
@@ -321,10 +406,173 @@ export default function Home() {
   }, [courseData]);
 
   useEffect(() => {
-    if (user) {
-      ensureUserMetadata();
+    if (user) ensureUserMetadata();
+  }, [ensureUserMetadata, user]);
+
+  useEffect(() => {
+    let isCancelled = false;
+    const controller = new AbortController();
+
+    const loadSubjects = async () => {
+      const cachedSubjects = readSearchCache(`${searchCachePrefix}:subjects`);
+
+      if (cachedSubjects?.length) {
+        setSubjects(cachedSubjects);
+        return;
+      }
+
+      setIsLoadingSearchOptions(true);
+      setSearchOptionsError(null);
+
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/v1/search`,
+          { signal: controller.signal },
+        );
+
+        if (!response.ok) {
+          throw new Error("Unable to load subjects");
+        }
+
+        const data = await response.json();
+        if (!isCancelled) {
+          setSubjects(data);
+          writeSearchCache(`${searchCachePrefix}:subjects`, data);
+        }
+      } catch (error) {
+        if (!isCancelled && error.name !== "AbortError") {
+          setSearchOptionsError(error.message);
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsLoadingSearchOptions(false);
+        }
+      }
+    };
+
+    loadSubjects();
+
+    return () => {
+      isCancelled = true;
+      controller.abort();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!subjects.includes(formData.subject)) return undefined;
+
+    let isCancelled = false;
+    const controller = new AbortController();
+
+    const loadCourseNumbers = async () => {
+      const cacheKey = `${searchCachePrefix}:courses:${formData.subject}`;
+      const cachedCourseNumbers = readSearchCache(cacheKey);
+
+      if (cachedCourseNumbers) {
+        setCourseNumbers(cachedCourseNumbers);
+        return;
+      }
+
+      setIsLoadingSearchOptions(true);
+      setSearchOptionsError(null);
+
+      try {
+        const params = new URLSearchParams({
+          searchSubject: formData.subject,
+        });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/v1/search?${params}`,
+          { signal: controller.signal },
+        );
+
+        if (!response.ok) {
+          throw new Error("Unable to load course numbers");
+        }
+
+        const data = await response.json();
+        if (!isCancelled) {
+          setCourseNumbers(data);
+          writeSearchCache(cacheKey, data);
+        }
+      } catch (error) {
+        if (!isCancelled && error.name !== "AbortError") {
+          setSearchOptionsError(error.message);
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsLoadingSearchOptions(false);
+        }
+      }
+    };
+
+    loadCourseNumbers();
+
+    return () => {
+      isCancelled = true;
+      controller.abort();
+    };
+  }, [formData.subject, subjects]);
+
+  useEffect(() => {
+    if (
+      !subjects.includes(formData.subject) ||
+      !courseNumbers.includes(formData.courseCode)
+    ) {
+      return undefined;
     }
-  }, [user]);
+
+    let isCancelled = false;
+    const controller = new AbortController();
+
+    const loadCrns = async () => {
+      const cacheKey = `${searchCachePrefix}:crns:${formData.subject}:${formData.courseCode}`;
+      const cachedCrns = readSearchCache(cacheKey);
+
+      if (cachedCrns) {
+        setCrns(cachedCrns);
+        return;
+      }
+
+      setIsLoadingSearchOptions(true);
+      setSearchOptionsError(null);
+
+      try {
+        const params = new URLSearchParams({
+          searchSubject: formData.subject,
+          searchcourseNumber: formData.courseCode,
+        });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/v1/search?${params}`,
+          { signal: controller.signal },
+        );
+
+        if (!response.ok) {
+          throw new Error("Unable to load CRNs");
+        }
+
+        const data = await response.json();
+        if (!isCancelled) {
+          setCrns(data);
+          writeSearchCache(cacheKey, data);
+        }
+      } catch (error) {
+        if (!isCancelled && error.name !== "AbortError") {
+          setSearchOptionsError(error.message);
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsLoadingSearchOptions(false);
+        }
+      }
+    };
+
+    loadCrns();
+
+    return () => {
+      isCancelled = true;
+      controller.abort();
+    };
+  }, [formData.subject, formData.courseCode, subjects, courseNumbers]);
 
   return (
     <main className="home-page">
@@ -362,45 +610,52 @@ export default function Home() {
             <form className="registration-form" onSubmit={handleSubmit}>
               <div className="form-field">
                 <label htmlFor="subject">Subject</label>
-                <input
-                  type="text"
-                  placeholder="CSE5"
+                <SearchableSelect
                   id="subject"
-                  name="subject"
                   value={formData.subject}
-                  onChange={handleChange}
-                  required
-                  disabled={isSubmitting}
+                  options={subjects}
+                  placeholder="Search subjects"
+                  onChange={handleSubjectChange}
+                  disabled={
+                    isSubmitting ||
+                    (subjects.length === 0 && isLoadingSearchOptions)
+                  }
                 />
               </div>
 
               <div className="form-field">
                 <label htmlFor="courseCode">Course code</label>
-                <input
-                  type="text"
-                  placeholder="56"
+                <SearchableSelect
                   id="courseCode"
-                  name="courseCode"
                   value={formData.courseCode}
-                  onChange={handleChange}
-                  required
-                  disabled={isSubmitting}
+                  options={courseNumbers}
+                  placeholder={
+                    formData.subject
+                      ? "Search course codes"
+                      : "Select a subject first"
+                  }
+                  onChange={handleCourseNumberChange}
+                  disabled={isSubmitting || !formData.subject}
                 />
               </div>
 
               <div className="form-field">
                 <label htmlFor="crn">CRN</label>
-                <input
-                  type="text"
-                  placeholder="4565"
+                <SearchableSelect
                   id="crn"
-                  name="crn"
                   value={formData.crn}
+                  options={crns}
+                  placeholder={
+                    formData.courseCode ? "Search CRNs" : "Select a course first"
+                  }
                   onChange={handleChange}
-                  required
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !formData.courseCode}
                 />
               </div>
+
+              {searchOptionsError && (
+                <p className="form-error">{searchOptionsError}</p>
+              )}
 
               <div className="form-field">
                 <label htmlFor="whatsAppNumber">WhatsApp number</label>
