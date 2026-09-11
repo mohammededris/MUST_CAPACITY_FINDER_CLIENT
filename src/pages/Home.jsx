@@ -25,7 +25,9 @@ const normalizePhoneForApi = (value, country) => {
   const phoneNumber = parsePhoneNumberFromString(value, country);
 
   if (!phoneNumber || !phoneNumber.isValid()) {
-    throw new Error("Please enter a valid phone number for the selected country.");
+    throw new Error(
+      "Please enter a valid phone number for the selected country.",
+    );
   }
 
   return phoneNumber.number.replace(/\D/g, "");
@@ -247,8 +249,7 @@ export default function Home() {
       subject: notification.subject ?? "",
       courseCode: notification.courseCode ?? "",
       crn: notification.crn ?? "",
-      whatsAppNumber:
-        phoneNumber?.nationalNumber ?? savedPhone,
+      whatsAppNumber: phoneNumber?.nationalNumber ?? savedPhone,
       userName: notification.userName ?? user.fullName,
     });
   };
