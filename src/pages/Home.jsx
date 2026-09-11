@@ -299,7 +299,6 @@ export default function Home() {
     } finally {
       setIsSubmitting(false);
     }
-
   };
 
   const submitted = useCallback(async () => {
@@ -427,7 +426,12 @@ export default function Home() {
       try {
         const response = await fetch(
           `${import.meta.env.VITE_API_URL}/api/v1/search`,
-          { signal: controller.signal },
+          {
+            signal: controller.signal,
+            headers: {
+              Authorization: `Bearer ${await getToken()}`,
+            },
+          },
         );
 
         if (!response.ok) {
@@ -456,7 +460,7 @@ export default function Home() {
       isCancelled = true;
       controller.abort();
     };
-  }, []);
+  }, [getToken]);
 
   useEffect(() => {
     if (!subjects.includes(formData.subject)) return undefined;
@@ -482,7 +486,12 @@ export default function Home() {
         });
         const response = await fetch(
           `${import.meta.env.VITE_API_URL}/api/v1/search?${params}`,
-          { signal: controller.signal },
+          {
+            signal: controller.signal,
+            headers: {
+              Authorization: `Bearer ${await getToken()}`,
+            },
+          },
         );
 
         if (!response.ok) {
@@ -511,7 +520,7 @@ export default function Home() {
       isCancelled = true;
       controller.abort();
     };
-  }, [formData.subject, subjects]);
+  }, [getToken, formData.subject, subjects]);
 
   useEffect(() => {
     if (
@@ -543,7 +552,12 @@ export default function Home() {
         });
         const response = await fetch(
           `${import.meta.env.VITE_API_URL}/api/v1/search?${params}`,
-          { signal: controller.signal },
+          {
+            signal: controller.signal,
+            headers: {
+              Authorization: `Bearer ${await getToken()}`,
+            },
+          },
         );
 
         if (!response.ok) {
@@ -572,7 +586,13 @@ export default function Home() {
       isCancelled = true;
       controller.abort();
     };
-  }, [formData.subject, formData.courseCode, subjects, courseNumbers]);
+  }, [
+    getToken,
+    formData.subject,
+    formData.courseCode,
+    subjects,
+    courseNumbers,
+  ]);
 
   return (
     <main className="home-page">
@@ -646,7 +666,9 @@ export default function Home() {
                   value={formData.crn}
                   options={crns}
                   placeholder={
-                    formData.courseCode ? "Search CRNs" : "Select a course first"
+                    formData.courseCode
+                      ? "Search CRNs"
+                      : "Select a course first"
                   }
                   onChange={handleChange}
                   disabled={isSubmitting || !formData.courseCode}
