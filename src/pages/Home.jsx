@@ -90,9 +90,11 @@ export default function Home() {
   const { getToken } = useAuth();
 
   const activityRef = useRef(null);
+  const serviceNoticeRef = useRef(null);
   const shouldScrollToActivity = useRef(false);
 
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showServiceNotice, setShowServiceNotice] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [courseData, setCourseData] = useState(null);
@@ -419,6 +421,10 @@ export default function Home() {
 
     return () => clearTimeout(timer);
   }, [showSuccess]);
+
+  useEffect(() => {
+    if (showServiceNotice) serviceNoticeRef.current?.focus();
+  }, [showServiceNotice]);
 
   useEffect(() => {
     submitted();
@@ -758,6 +764,41 @@ export default function Home() {
   return (
     <main className="home-page">
       <Navbar />
+
+      {showServiceNotice && (
+        <div className="service-notice-backdrop">
+          <aside
+            ref={serviceNoticeRef}
+            className="service-notice"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="service-notice-title"
+            tabIndex="-1"
+          >
+            <div className="service-notice-mark" aria-hidden="true">
+              !
+            </div>
+            <div className="service-notice-content">
+              <p className="service-notice-label">Important service update</p>
+              <h2 className="service-notice-title" id="service-notice-title">
+                WhatsApp alerts are temporarily unavailable
+              </h2>
+              <p className="service-notice-message">
+                We are having some issues with our WhatsApp service. We are
+                switching to email alerts. You can still submit your requests.
+                Please be patient while we work on fixing it.
+              </p>
+              <button
+                className="service-notice-confirm"
+                type="button"
+                onClick={() => setShowServiceNotice(false)}
+              >
+                I understand
+              </button>
+            </div>
+          </aside>
+        </div>
+      )}
 
       <div className="home-shell">
         <section className="home-hero">
