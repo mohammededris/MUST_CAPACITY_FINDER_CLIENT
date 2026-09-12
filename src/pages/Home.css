@@ -23,6 +23,90 @@
   padding: 72px 0;
 }
 
+.service-notice-backdrop {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(23, 33, 43, 0.68);
+  animation: notice-backdrop-in 240ms ease both;
+}
+
+.service-notice {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 20px;
+  width: min(560px, 100%);
+  padding: 32px;
+  border: 1px solid #e6c99e;
+  border-top: 5px solid #c27b26;
+  background: #fff8ec;
+  box-shadow: 0 24px 70px rgba(13, 24, 32, 0.3);
+  animation: notice-in 320ms ease both;
+}
+
+.service-notice-mark {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 50%;
+  background: #c27b26;
+  color: var(--white);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.service-notice-content {
+  min-width: 0;
+}
+
+.service-notice-label {
+  margin: 0 0 4px;
+  color: #8c581c;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.service-notice-message {
+  margin: 0;
+  color: #604827;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.service-notice-title {
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-size: 1.45rem;
+  line-height: 1.15;
+}
+
+.service-notice-confirm {
+  min-height: 44px;
+  margin-top: 24px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--white);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.service-notice-confirm:hover,
+.service-notice-confirm:focus-visible {
+  background: var(--accent-dark);
+  outline: none;
+  transform: translateY(-2px);
+}
+
 .home-hero {
   max-width: 680px;
   margin-bottom: 64px;
@@ -527,6 +611,26 @@
   }
 }
 
+@keyframes notice-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes notice-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 @media (max-width: 800px) {
   .home-shell {
     width: min(100% - 32px, 600px);
@@ -560,6 +664,19 @@
   .home-shell {
     width: min(100% - 24px, 600px);
     padding: 36px 0;
+  }
+
+  .service-notice-backdrop {
+    padding: 16px;
+  }
+
+  .service-notice {
+    gap: 14px;
+    padding: 24px 20px;
+  }
+
+  .service-notice-title {
+    font-size: 1.25rem;
   }
 
   .home-hero {
