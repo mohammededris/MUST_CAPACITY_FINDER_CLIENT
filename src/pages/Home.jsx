@@ -92,11 +92,14 @@ export default function Home() {
   const activityRef = useRef(null);
   const serviceNoticeRef = useRef(null);
   const shouldScrollToActivity = useRef(false);
+  const refreshControllerRef = useRef(null);
+  const refreshRequestRef = useRef(0);
 
   const [showSuccess, setShowSuccess] = useState(false);
   const [showServiceNotice, setShowServiceNotice] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [refreshError, setRefreshError] = useState(null);
   const [courseData, setCourseData] = useState(null);
   const [toggledId, setToggledId] = useState(null);
   const [showSharePopup, setShowSharePopup] = useState(false);
@@ -114,8 +117,7 @@ export default function Home() {
     courseCode: "",
     crn: "",
     whatsAppNumber: "",
-    userName: user.fullName,
-    userId: user.id,
+    userName: user?.fullName ?? "",
   });
 
   const [editingId, setEditingId] = useState(null);
@@ -135,7 +137,10 @@ export default function Home() {
   const limitReached = alertCount >= alertLimit;
 
   const ensureUserMetadata = useCallback(async () => {
-    const alreadyChecked = sessionStorage.getItem("metadataChecked");
+    if (!user) return;
+
+    const metadataKey = `metadataChecked:${user.id}`;
+    const alreadyChecked = sessionStorage.getItem(metadataKey);
     if (alreadyChecked) return;
 
     try {
@@ -156,12 +161,12 @@ export default function Home() {
         );
       }
 
-      sessionStorage.setItem("metadataChecked", "true");
+      sessionStorage.setItem(metadataKey, "true");
     } catch (err) {
       console.error("Error ensuring user metadata:", err);
       // not fatal — don't block the rest of the page
     }
-  }, [getToken]);
+  }, [getToken, user?.id]);
 
   const toggleAlert = async (id, isCurrentlyStopped) => {
     try {
@@ -330,7 +335,12 @@ export default function Home() {
       }
 
       await response.json();
-      await submitted();
+      const refreshed = await submitted();
+      if (!refreshed) {
+        throw new Error(
+          "Course submitted successfully, but your course list could not be refreshed. Please reload the page.",
+        );
+      }
       shouldScrollToActivity.current = true;
       setShowSuccess(true);
       setShowSharePopup(true);
@@ -343,24 +353,44 @@ export default function Home() {
   };
 
   const submitted = useCallback(async () => {
+    const requestId = ++refreshRequestRef.current;
+    refreshControllerRef.current?.abort();
+    const controller = new AbortController();
+    refreshControllerRef.current = controller;
+    setRefreshError(null);
+
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/api/v1/courses`, {
-        method: "get",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${await getToken()}`,
-          userId: user.id,
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/v1/courses`,
+        {
+          signal: controller.signal,
+          method: "get",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${await getToken()}`,
+          },
         },
-      }).then(async (response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch course data");
-        }
-        return setCourseData(await response.json());
-      });
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch course data");
+      }
+
+      const data = await response.json();
+      if (requestId !== refreshRequestRef.current) return false;
+
+      setCourseData(data);
+      return true;
     } catch (err) {
+      if (err.name === "AbortError") return false;
+
       console.error("Cannot GET the course data:", err);
+      if (requestId === refreshRequestRef.current) {
+        setRefreshError("Unable to refresh your course requests.");
+      }
+      return false;
     }
-  }, [getToken, user.id]);
+  }, [getToken]);
 
   const startEditing = (notification) => {
     const savedPhone = notification.whatsAppNumber ?? "";
@@ -761,6 +791,10 @@ export default function Home() {
     editCourseNumbers,
   ]);
 
+  if (!user) {
+    return null;
+  }
+
   return (
     <main className="home-page">
       <Navbar />
@@ -956,9 +990,7 @@ export default function Home() {
                 <h2 className="panel-title">Course data</h2>
               </div>
 
-              <span className="course-count">
-                {courseData?.notifications?.length ?? 0} requests
-              </span>
+              <span className="course-count">{alertCount} requests</span>
             </div>
 
             <div className="alert-limit-notice">
@@ -972,6 +1004,8 @@ export default function Home() {
                 Chat on WhatsApp
               </a>
             </div>
+
+            {refreshError && <p className="form-error">{refreshError}</p>}
 
             {courseData?.notifications?.length ? (
               <div className="course-list">
@@ -1122,55 +1156,51 @@ export default function Home() {
                           : "Alert started."}
                       </p>
                     )}
-                    {showSharePopup && (
-                      <div
-                        className="share-overlay"
-                        role="dialog"
-                        aria-modal="true"
-                      >
-                        <div className="share-popup">
-                          <button
-                            className="share-close"
-                            type="button"
-                            onClick={() => setShowSharePopup(false)}
-                            aria-label="Close popup"
-                          >
-                            ×
-                          </button>
-
-                          <p className="panel-kicker">Thank you</p>
-                          <h2>Help us spread the word</h2>
-                          <p>
-                            Your course request was submitted successfully.
-                            Share MUST Capacity Alerter with a friend and help
-                            support the project.
-                          </p>
-
-                          <div className="share-actions">
-                            <button
-                              className="share-button"
-                              type="button"
-                              onClick={handleShare}
-                            >
-                              Share website
-                            </button>
-                            <button
-                              className="share-later-button"
-                              type="button"
-                              onClick={() => setShowSharePopup(false)}
-                            >
-                              Maybe later
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
                   </article>
                 ))}
               </div>
             ) : (
               <div className="empty-state">
                 No course requests have been submitted yet.
+              </div>
+            )}
+
+            {showSharePopup && (
+              <div className="share-overlay" role="dialog" aria-modal="true">
+                <div className="share-popup">
+                  <button
+                    className="share-close"
+                    type="button"
+                    onClick={() => setShowSharePopup(false)}
+                    aria-label="Close popup"
+                  >
+                    ×
+                  </button>
+
+                  <p className="panel-kicker">Thank you</p>
+                  <h2>Help us spread the word</h2>
+                  <p>
+                    Your course request was submitted successfully. Share MUST
+                    Capacity Alerter with a friend and help support the project.
+                  </p>
+
+                  <div className="share-actions">
+                    <button
+                      className="share-button"
+                      type="button"
+                      onClick={handleShare}
+                    >
+                      Share website
+                    </button>
+                    <button
+                      className="share-later-button"
+                      type="button"
+                      onClick={() => setShowSharePopup(false)}
+                    >
+                      Maybe later
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </section>
