@@ -50,6 +50,29 @@ const normalizePhoneForApi = (value, country) => {
   return phoneNumber.number.replace(/\D/g, "");
 };
 
+const getApiErrorMessage = async (response, fallbackMessage) => {
+  const responseText = await response.text().catch(() => "");
+
+  if (responseText) {
+    try {
+      const data = JSON.parse(responseText);
+      const validationErrors = Array.isArray(data.errors)
+        ? data.errors
+            .map((error) => error.message || error.msg || error)
+            .join(", ")
+        : null;
+
+      if (data.message || data.error || validationErrors) {
+        return data.message || data.error || validationErrors;
+      }
+    } catch {
+      return responseText.trim();
+    }
+  }
+
+  return `${fallbackMessage} (HTTP ${response.status})`;
+};
+
 function SearchableSelect({
   id,
   name = id,
@@ -132,8 +155,10 @@ export default function Home() {
   });
 
   const alertLimit = courseData?.alertLimit ?? 1;
-  const alertCount =
-    courseData?.alertCount ?? courseData?.notifications?.length ?? 0;
+  const notifications = Array.isArray(courseData?.notifications)
+    ? courseData.notifications
+    : [];
+  const alertCount = notifications.length;
   const limitReached = alertCount >= alertLimit;
 
   const ensureUserMetadata = useCallback(async () => {
@@ -308,10 +333,18 @@ export default function Home() {
         throw new Error("Please select a CRN from the list.");
       }
 
+      const userName = formData.userName || user?.fullName || "";
+      if (!userName.trim()) {
+        throw new Error(
+          "Your account name is missing. Please reload the page and try again.",
+        );
+      }
+
       const payload = {
         ...formData,
         subject: formData.subject.trim().toUpperCase(),
         courseCode: formData.courseCode.trim().toUpperCase(),
+        userName,
         whatsAppNumber: normalizePhoneForApi(
           formData.whatsAppNumber,
           phoneCountry,
@@ -330,11 +363,12 @@ export default function Home() {
       );
 
       if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.message || "Failed to submit registration");
+        throw new Error(
+          await getApiErrorMessage(response, "Failed to submit registration"),
+        );
       }
 
-      await response.json();
+      await response.text();
       const refreshed = await submitted();
       if (!refreshed) {
         throw new Error(
@@ -345,8 +379,16 @@ export default function Home() {
       setShowSuccess(true);
       setShowSharePopup(true);
     } catch (err) {
-      setSubmitError(err.message);
-      console.error("Error submitting registration:", err);
+      const errorMessage =
+        err instanceof TypeError
+          ? "Could not reach the server. Please check your connection or try again later."
+          : err.message;
+      setSubmitError(errorMessage);
+      console.error("Error submitting registration:", {
+        message: err.message,
+        apiUrl: import.meta.env.VITE_API_URL,
+        error: err,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -1007,9 +1049,9 @@ export default function Home() {
 
             {refreshError && <p className="form-error">{refreshError}</p>}
 
-            {courseData?.notifications?.length ? (
+            {notifications.length ? (
               <div className="course-list">
-                {courseData.notifications.map((notification, index) => (
+                {notifications.map((notification, index) => (
                   <article
                     className="course-card"
                     key={notification._id ?? index}
