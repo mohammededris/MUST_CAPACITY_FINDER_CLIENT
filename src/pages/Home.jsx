@@ -841,7 +841,7 @@ export default function Home() {
     <main className="home-page">
       <Navbar />
 
-      {showServiceNotice && (
+      {/* {showServiceNotice && (
         <div className="service-notice-backdrop">
           <aside
             ref={serviceNoticeRef}
@@ -874,7 +874,7 @@ export default function Home() {
             </div>
           </aside>
         </div>
-      )}
+      )} */}
 
       <div className="home-shell">
         <section className="home-hero">
