@@ -1134,3 +1134,120 @@
     width: 100%;
   }
 }
+
+/* Final mobile pass: keep this after the desktop presentation overrides. */
+@media (max-width: 800px) {
+  .home-shell {
+    width: min(100% - 40px, 620px);
+    padding: 52px 0 76px;
+  }
+
+  .home-hero {
+    max-width: 560px;
+    margin-bottom: 46px;
+  }
+
+  .home-title {
+    max-width: 560px;
+    font-size: clamp(3rem, 10vw, 5.2rem);
+    line-height: 0.92;
+  }
+
+  .home-subtitle {
+    max-width: 430px;
+    margin-top: 22px;
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+
+  .home-layout {
+    grid-template-columns: 1fr;
+    gap: 56px;
+  }
+
+  .registration-panel {
+    max-width: none;
+  }
+
+  .registration-guide {
+    margin-bottom: 26px;
+    padding: 7px;
+  }
+
+  .registration-guide figcaption {
+    margin-top: 8px;
+    font-size: 0.7rem;
+  }
+
+  .panel-title,
+  .course-panel-header .panel-title {
+    font-size: 2.05rem;
+  }
+
+  .panel-description {
+    max-width: 360px;
+    margin: 10px 0 24px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .registration-form {
+    gap: 18px;
+  }
+
+  .form-field {
+    gap: 6px;
+  }
+
+  .field-hint {
+    max-width: 360px;
+    font-size: 0.72rem;
+  }
+
+  .course-panel {
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+  }
+
+  .course-panel-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+    padding-bottom: 16px;
+  }
+
+  .alert-limit-notice {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+    padding: 16px 0 18px;
+  }
+
+  .alert-limit-notice p {
+    max-width: 340px;
+    font-size: 0.82rem;
+  }
+
+  .whatsapp-button {
+    width: fit-content;
+  }
+
+  .course-card {
+    padding: 20px 0;
+  }
+}
+
+@media (max-width: 500px) {
+  .home-shell {
+    width: min(100% - 32px, 520px);
+    padding-top: 42px;
+  }
+
+  .home-title {
+    font-size: clamp(2.8rem, 13vw, 4.2rem);
+  }
+
+  .home-hero {
+    margin-bottom: 38px;
+  }
+}
