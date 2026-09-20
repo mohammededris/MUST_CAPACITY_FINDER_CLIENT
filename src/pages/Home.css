@@ -733,3 +733,296 @@
     width: 100%;
   }
 }
+
+/* Alerts dashboard: a calm, high-contrast workspace inside the same editorial system. */
+.home-page {
+  background: var(--page);
+  font-family: var(--sans);
+}
+
+.home-shell {
+  width: min(1180px, calc(100% - 48px));
+  padding: 92px 0 120px;
+}
+
+.home-hero {
+  max-width: 860px;
+  margin-bottom: 82px;
+}
+
+.home-eyebrow,
+.panel-kicker {
+  color: var(--accent-dark);
+  font-size: 0.68rem;
+  letter-spacing: 0.17em;
+}
+
+.home-title {
+  max-width: 850px;
+  font-family: var(--serif);
+  font-size: clamp(3.9rem, 8vw, 8rem);
+  font-weight: 400;
+  line-height: 0.88;
+  letter-spacing: -0.075em;
+}
+
+.home-subtitle {
+  max-width: 520px;
+  margin-top: 30px;
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.home-status {
+  margin-top: 22px;
+  color: var(--accent-dark);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-layout {
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+  gap: clamp(42px, 8vw, 120px);
+}
+
+.registration-panel {
+  max-width: 470px;
+  padding-top: 2px;
+}
+
+.registration-guide {
+  margin-bottom: 36px;
+  padding: 9px;
+  border: 1px solid var(--line);
+  background: var(--white);
+}
+
+.registration-guide figcaption {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.panel-title {
+  font-family: var(--serif);
+  font-size: 2.35rem;
+  font-weight: 400;
+  letter-spacing: -0.05em;
+}
+
+.panel-description {
+  margin: 12px 0 34px;
+}
+
+.registration-form {
+  gap: 25px;
+}
+
+.form-field {
+  gap: 9px;
+}
+
+.form-field label,
+.edit-form > label {
+  color: var(--ink);
+  font-size: 0.72rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.country-select,
+.form-field input,
+.search-select {
+  border-bottom-color: #bdb5a8;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+}
+
+.country-select:focus,
+.form-field input:focus,
+.search-select:focus {
+  border-bottom-color: var(--accent);
+  box-shadow: 0 3px 0 -1px var(--accent);
+}
+
+.submit-button,
+.edit-course-button,
+.toggle-alert-button {
+  min-height: 48px;
+  margin-top: 10px;
+  padding: 0 25px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--ink);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.submit-button:hover:not(:disabled),
+.edit-course-button:hover:not(:disabled),
+.toggle-alert-button:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--white);
+}
+
+.course-panel-header {
+  margin-bottom: 0;
+  padding: 0 0 20px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.course-panel-header .panel-title {
+  font-size: 2rem;
+}
+
+.course-count {
+  color: var(--accent-dark);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.alert-limit-notice {
+  margin-bottom: 0;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.alert-limit-notice p {
+  font-size: 0.86rem;
+}
+
+.whatsapp-button {
+  min-height: 38px;
+  padding: 0 15px;
+  background: var(--success);
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+}
+
+.whatsapp-button:hover {
+  background: var(--ink);
+}
+
+.course-card {
+  padding: 26px 0;
+}
+
+.course-card p {
+  margin: 8px 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.course-card strong {
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 400;
+}
+
+.edit-form {
+  padding: 24px;
+  border-color: var(--line);
+  background: var(--white);
+}
+
+.edit-form > label input:not(.search-select) {
+  border-color: var(--line);
+  background: var(--page);
+}
+
+.edit-form .toggle-alert-button {
+  background: var(--ink);
+  color: var(--white);
+}
+
+.edit-form .toggle-alert-button:hover:not(:disabled) {
+  background: var(--success);
+}
+
+.share-overlay,
+.service-notice-backdrop {
+  background: rgba(23, 23, 19, 0.72);
+}
+
+.service-notice,
+.share-popup {
+  border-radius: 0;
+  background: var(--white);
+  box-shadow: 0 26px 80px rgba(23, 23, 19, 0.28);
+}
+
+.service-notice {
+  border-color: #e7b69f;
+  border-top-color: var(--accent);
+}
+
+.service-notice-mark {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.service-notice-label {
+  color: var(--accent-dark);
+}
+
+.service-notice-message {
+  color: var(--muted);
+}
+
+.service-notice-title,
+.share-popup h2 {
+  font-family: var(--serif);
+  font-weight: 400;
+}
+
+.service-notice-confirm,
+.share-button {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.service-notice-confirm:hover,
+.service-notice-confirm:focus-visible,
+.share-button:hover {
+  background: var(--ink);
+  color: var(--white);
+}
+
+@media (max-width: 800px) {
+  .home-shell {
+    width: min(100% - 32px, 600px);
+    padding: 64px 0 88px;
+  }
+
+  .home-title {
+    font-size: clamp(3.5rem, 14vw, 6rem);
+  }
+}
+
+@media (max-width: 500px) {
+  .home-shell {
+    width: min(100% - 24px, 600px);
+    padding: 48px 0 68px;
+  }
+
+  .home-title {
+    font-size: clamp(3.2rem, 17vw, 4.8rem);
+  }
+
+  .home-hero {
+    margin-bottom: 58px;
+  }
+
+  .submit-button,
+  .toggle-alert-button,
+  .edit-course-button {
+    width: 100%;
+  }
+}

@@ -119,3 +119,187 @@
     padding-bottom: 64px;
   }
 }
+
+/* Landing page: oversized editorial type with Superpower's orange pulse. */
+.hero-section,
+.main-section,
+.cta-section {
+  width: min(1180px, calc(100% - 48px));
+  font-family: var(--sans);
+}
+
+.hero-section {
+  position: relative;
+  min-height: min(680px, calc(100vh - 78px));
+  padding: clamp(86px, 13vw, 170px) 0 96px;
+  border-bottom: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.hero-section::after {
+  position: absolute;
+  right: -8vw;
+  bottom: -19vw;
+  width: min(46vw, 560px);
+  height: min(46vw, 560px);
+  border-radius: 50%;
+  background: var(--accent);
+  content: "";
+  opacity: 0.94;
+}
+
+.hero-section h1 {
+  position: relative;
+  z-index: 1;
+  max-width: 940px;
+  font-family: var(--serif);
+  font-size: clamp(3.8rem, 10vw, 9rem);
+  font-weight: 400;
+  line-height: 0.88;
+  letter-spacing: -0.075em;
+  animation: landing-reveal 700ms ease both;
+}
+
+.hero-section p {
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+  margin-top: 36px;
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.65;
+  animation: landing-reveal 700ms 100ms ease both;
+}
+
+.main-section {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  padding: 0;
+}
+
+.main-section > div {
+  min-height: 265px;
+  padding: 40px 32px 40px 28px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.main-section > div:first-child {
+  border-left: 1px solid var(--line);
+}
+
+.main-section > div::before {
+  top: 41px;
+  left: 28px;
+  font-family: var(--serif);
+  font-size: 0.9rem;
+}
+
+.main-section > div:nth-child(1)::before {
+  content: "01";
+}
+
+.main-section > div:nth-child(2)::before {
+  content: "02";
+}
+
+.main-section > div:nth-child(3)::before {
+  content: "03";
+}
+
+.main-section h2 {
+  padding-top: 34px;
+  font-family: var(--serif);
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: -0.04em;
+}
+
+.main-section p {
+  max-width: 260px;
+  margin-top: 18px;
+  font-size: 0.92rem;
+}
+
+.main-section .note {
+  color: var(--accent-dark);
+  font-size: 0.76rem;
+}
+
+.cta-section {
+  padding: 112px 0 130px;
+  border-top: 0;
+  text-align: left;
+}
+
+.cta-section h2 {
+  max-width: 580px;
+  font-family: var(--serif);
+  font-size: clamp(2.5rem, 5vw, 5rem);
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: -0.06em;
+}
+
+.cta-section button,
+.cta-section > button {
+  min-height: 48px;
+  margin: 34px 8px 0 0;
+  padding: 0 25px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--ink);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cta-section button:hover {
+  background: var(--ink);
+  color: var(--white);
+}
+
+@keyframes landing-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 700px) {
+  .hero-section,
+  .main-section,
+  .cta-section {
+    width: min(100% - 32px, 560px);
+  }
+
+  .hero-section {
+    min-height: 620px;
+    padding: 92px 0 60px;
+  }
+
+  .hero-section::after {
+    right: -30vw;
+    bottom: -12vw;
+    width: 76vw;
+    height: 76vw;
+  }
+
+  .main-section {
+    grid-template-columns: 1fr;
+  }
+
+  .main-section > div,
+  .main-section > div:first-child {
+    min-height: 190px;
+    border-left: 1px solid var(--line);
+  }
+
+  .cta-section {
+    padding: 76px 0 90px;
+  }
+}

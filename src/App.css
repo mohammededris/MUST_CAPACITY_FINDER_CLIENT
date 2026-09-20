@@ -1,0 +1,55 @@
+/* Shared visual language: warm editorial health-tech palette. */
+:root {
+	--ink: #171713;
+	--muted: #726f65;
+	--line: #d8d2c5;
+	--accent: #f0642d;
+	--accent-dark: #c94419;
+	--success: #286d55;
+	--danger: #a83a26;
+	--page: #f5f1e8;
+	--white: #fffdf8;
+	--serif: Georgia, "Times New Roman", serif;
+	--sans: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+html {
+	background: var(--page);
+	color: var(--ink);
+}
+
+body {
+	overflow-x: hidden;
+	background: var(--page);
+	-webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select {
+	font: inherit;
+	-webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+	background: var(--accent);
+	color: var(--white);
+}
+
+::-webkit-scrollbar {
+	width: 10px;
+}
+
+::-webkit-scrollbar-track {
+	background: #e9e3d8;
+}
+
+::-webkit-scrollbar-thumb {
+	background: #b9b0a1;
+	border: 3px solid #e9e3d8;
+	border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: var(--accent);
+}

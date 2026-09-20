@@ -63,3 +63,34 @@
     gap: 20px;
   }
 }
+
+.footer-container {
+  min-height: 150px;
+  padding: 32px 24px;
+  background: #eee9df;
+}
+
+.footer-links {
+  display: none;
+}
+
+.footer-social {
+  gap: 28px;
+  margin-bottom: 18px;
+}
+
+.footer-social a {
+  color: var(--ink);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.footer-social a:hover,
+.footer-social a:focus-visible {
+  color: var(--accent-dark);
+}
+
+.footer-copyright {
+  font-size: 0.7rem;
+}

@@ -101,3 +101,70 @@
     padding: 80px 0 64px;
   }
 }
+
+.support-content {
+  width: min(760px, calc(100% - 48px));
+  min-height: 64vh;
+  padding: 126px 0 110px;
+}
+
+.support-content h1 {
+  font-family: var(--serif);
+  font-size: clamp(4rem, 10vw, 8.5rem);
+  font-weight: 400;
+  letter-spacing: -0.075em;
+}
+
+.support-description {
+  max-width: 500px;
+  margin: 32px 0 48px;
+  color: var(--ink);
+}
+
+.donation-links {
+  max-width: 620px;
+  gap: 0;
+  border-top: 1px solid var(--line);
+}
+
+.donation-link {
+  min-height: 70px;
+  padding: 0 4px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  font-weight: 400;
+}
+
+.donation-link:hover,
+.donation-link:focus-visible {
+  border-color: var(--line);
+  color: var(--ink);
+  transform: translateX(8px);
+}
+
+.donation-link span {
+  color: var(--accent);
+  font-family: var(--sans);
+}
+
+.share-support-button {
+  background: var(--accent);
+  color: var(--ink);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.share-support-button:hover {
+  background: var(--ink);
+  color: var(--white);
+}
+
+@media (max-width: 600px) {
+  .support-content {
+    width: min(100% - 32px, 560px);
+    padding: 88px 0 72px;
+  }
+}

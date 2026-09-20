@@ -333,7 +333,7 @@ export default function Home() {
         throw new Error("Please select a CRN from the list.");
       }
 
-      const userName = formData.userName || user?.fullName || "";
+      const userName = formData.userName || user?.fullName || "User";
       if (!userName.trim()) {
         throw new Error(
           "Your account name is missing. Please reload the page and try again.",
