@@ -1,13 +1,15 @@
 :root {
-  --ink: #17212b;
-  --muted: #71808a;
-  --line: #d8e0e3;
-  --accent: #d96838;
-  --accent-dark: #ae4d27;
-  --success: #247653;
-  --danger: #b42318;
-  --page: #f8faf9;
-  --white: #ffffff;
+  --ink: #171713;
+  --muted: #726f65;
+  --line: #d8d2c5;
+  --accent: #f0642d;
+  --accent-dark: #c94419;
+  --success: #286d55;
+  --danger: #a83a26;
+  --page: #f5f1e8;
+  --white: #fffdf8;
+  --serif: Georgia, "Times New Roman", serif;
+  --sans: "Trebuchet MS", "Segoe UI", sans-serif;
 }
 
 .home-page {
@@ -733,6 +735,110 @@
   .share-button,
   .share-later-button {
     width: 100%;
+  }
+}
+
+/* Keep the dashboard single-column on phones. This follows the desktop overrides above. */
+@media (max-width: 800px) {
+  .home-shell {
+    width: min(100% - 32px, 620px);
+    padding: 64px 0 88px;
+  }
+
+  .home-hero {
+    max-width: none;
+    margin-bottom: 58px;
+  }
+
+  .home-title {
+    max-width: 580px;
+    font-size: clamp(3.2rem, 13vw, 5.8rem);
+  }
+
+  .home-subtitle {
+    max-width: 500px;
+    margin-top: 24px;
+    font-size: 0.96rem;
+  }
+
+  .home-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 72px;
+  }
+
+  .registration-panel {
+    max-width: none;
+  }
+
+  .course-panel {
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+  }
+
+  .course-panel-header {
+    align-items: flex-end;
+  }
+}
+
+@media (max-width: 500px) {
+  .home-shell {
+    width: min(100% - 32px, 520px);
+    padding: 48px 0 68px;
+  }
+
+  .home-hero {
+    margin-bottom: 48px;
+  }
+
+  .home-title {
+    font-size: clamp(3rem, 15vw, 4.7rem);
+    line-height: 0.9;
+  }
+
+  .home-subtitle {
+    max-width: 360px;
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+
+  .registration-guide {
+    margin-bottom: 28px;
+  }
+
+  .panel-title,
+  .course-panel-header .panel-title {
+    font-size: 2rem;
+  }
+
+  .panel-description {
+    margin-bottom: 28px;
+  }
+
+  .course-panel {
+    padding-top: 24px;
+  }
+
+  .course-panel-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .alert-limit-notice {
+    gap: 16px;
+    padding: 18px 0 22px;
+  }
+
+  .alert-limit-notice p {
+    max-width: 320px;
+  }
+
+  .whatsapp-button {
+    width: fit-content;
+  }
+
+  .course-card {
+    padding: 22px 0;
   }
 }
 
